@@ -27,6 +27,7 @@ public class MemberExceptionTest {
     @Autowired
     private Gson gson;
 
+    // 아래의 테스트처럼 메서드 인자에 @Valid 애너테이션을 사용하여 유효성 검사를 하고 실패하는 경우에
     @Test
     void 이메일_필드에러_예외처리_테스트() throws Exception {
         //given

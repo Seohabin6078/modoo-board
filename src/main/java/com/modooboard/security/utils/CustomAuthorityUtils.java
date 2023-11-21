@@ -19,9 +19,6 @@ public class CustomAuthorityUtils {
     private final List<String> ADMIN_ROLES = List.of("ADMIN", "USER");
     private final List<String> USER_ROLES = List.of("USER");
 
-    // OAuth2 로그인 시에 첫 로그인 시에 Role을 Guest로 설정하고, 추가 정보 입력 시 User로 업데이트 되게 구현하기 위함.
-    private final List<String> GUEST_ROLES = List.of("GUEST");
-
     public List<String> createRoles(String email) {
         if (email.equals(adminMailAddress)) {
             return ADMIN_ROLES;
@@ -34,11 +31,4 @@ public class CustomAuthorityUtils {
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                 .collect(Collectors.toList());
     }
-
-//    public List<GrantedAuthority> createAuthorities(String email) {
-//        if (email.equals(adminMailAddress)) {
-//            return ADMIN_ROLES;
-//        }
-//        return USER_ROLES;
-//    }
 }

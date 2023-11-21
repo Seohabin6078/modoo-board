@@ -1,17 +1,16 @@
 package com.modooboard.member.entity;
 
 import com.modooboard.audit.Auditable;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
+@AllArgsConstructor // Builder 패턴을 사용하기 위해서는 파라미터가 있는 생성자가 필요하다
 @Entity
 public class Member extends Auditable {
     @Id
@@ -24,16 +23,20 @@ public class Member extends Auditable {
     @Column(nullable = false, length = 100)
     private String password;
 
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false, length = 100)
     private String displayName;
 
+    @Column
+    private String profileImage;
+
     @Enumerated(value = EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 100)
     private MemberStatus memberStatus = MemberStatus.MEMBER_ACTIVE;
 
     @Enumerated(value = EnumType.STRING)
     private SocialType socialType;
 
+    @Column
     private String socialId; // 로그인한 소셜 타입의 식별자 값 (일반 로그인인 경우 null)
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -44,12 +47,8 @@ public class Member extends Auditable {
         this.roles = roles;
     }
 
-    @Builder
-    public Member(Long memberId, String email, String password, String displayName) {
-        this.memberId = memberId;
-        this.email = email;
-        this.password = password;
-        this.displayName = displayName;
+    public void changeRoles(List<String> roles) {
+        this.roles = roles;
     }
 
     public void changePassword(String password) {
@@ -58,6 +57,10 @@ public class Member extends Auditable {
 
     public void changeDisplayName(String displayName) {
         this.displayName = displayName;
+    }
+
+    public void changeProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
 
     public void changeMemberStatus(MemberStatus memberStatus) {

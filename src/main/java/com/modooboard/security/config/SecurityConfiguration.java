@@ -1,5 +1,6 @@
 package com.modooboard.security.config;
 
+import com.modooboard.member.service.MemberService;
 import com.modooboard.security.filter.JwtAuthenticationFilter;
 import com.modooboard.security.filter.JwtVerificationFilter;
 import com.modooboard.security.handler.MemberAccessDeniedHandler;
@@ -7,6 +8,9 @@ import com.modooboard.security.handler.MemberAuthenticationEntryPoint;
 import com.modooboard.security.handler.MemberAuthenticationFailureHandler;
 import com.modooboard.security.handler.MemberAuthenticationSuccessHandler;
 import com.modooboard.security.jwt.JwtTokenizer;
+import com.modooboard.security.oauth2.handler.OAuth2MemberAuthenticationFailureHandler;
+import com.modooboard.security.oauth2.handler.OAuth2MemberAuthenticationSuccessHandler;
+import com.modooboard.security.oauth2.oauth2user.CustomOAuth2UserService;
 import com.modooboard.security.utils.CustomAuthorityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +22,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -29,9 +34,10 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @RequiredArgsConstructor
 @Configuration
-public class JwtSecurityConfiguration {
+public class SecurityConfiguration {
     private final JwtTokenizer jwtTokenizer;
     private final CustomAuthorityUtils authorityUtils;
+    private final CustomOAuth2UserService oAuth2UserService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -76,7 +82,11 @@ public class JwtSecurityConfiguration {
                         .antMatchers(HttpMethod.GET, "/members/**").hasAnyRole("USER", "ADMIN")
                         .antMatchers(HttpMethod.DELETE, "/members/**").hasAnyRole("USER", "ADMIN")
                         .anyRequest().permitAll()
-                );
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(new OAuth2MemberAuthenticationSuccessHandler(jwtTokenizer))
+                        .failureHandler(new OAuth2MemberAuthenticationFailureHandler())
+                        .userInfoEndpoint().userService(oAuth2UserService));
         return http.build();
     }
 
@@ -108,8 +118,10 @@ public class JwtSecurityConfiguration {
 
             JwtVerificationFilter jwtVerificationFilter = new JwtVerificationFilter(jwtTokenizer, authorityUtils);
 
+            // todo 아래와 같이 설정하면 JwtAuthenticationFilter와 OAuth2LoginAuthenticationFilter 각각 호출뒤에 JwtVerificationFilter가 호출되는지 테스트해보기!!
             builder.addFilter(jwtAuthenticationFilter)
-                    .addFilterAfter(jwtVerificationFilter, JwtAuthenticationFilter.class);
+                    .addFilterAfter(jwtVerificationFilter, JwtAuthenticationFilter.class)
+                    .addFilterAfter(jwtVerificationFilter, OAuth2LoginAuthenticationFilter.class);
         }
     }
 }

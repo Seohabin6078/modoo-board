@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Slf4j
-@Component
 public class MemberAuthenticationEntryPoint implements AuthenticationEntryPoint {
     // SignatureException, ExpiredJwtException 등의 Exception 발생으로 인해
     // SecurityContext에 Authentication이 저장되지 않을 경우 등 AuthenticationException이

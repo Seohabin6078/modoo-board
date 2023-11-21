@@ -1,8 +1,9 @@
-package com.modooboard.security.handler;
+package com.modooboard.security.oauth2.handler;
 
 import com.modooboard.member.entity.Member;
 import com.modooboard.member.service.MemberService;
 import com.modooboard.security.jwt.JwtTokenizer;
+import com.modooboard.security.oauth2.oauth2user.CustomOAuth2User;
 import com.modooboard.security.utils.CustomAuthorityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -25,38 +26,29 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OAuth2MemberAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final JwtTokenizer jwtTokenizer;
-    private final CustomAuthorityUtils authorityUtils;
-    private final MemberService memberService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        String email = String.valueOf(oAuth2User.getAttributes().get("email"));
-        List<String> authorities = authorityUtils.createRoles(email);
+        CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
+        String email = oAuth2User.getEmail();
+        List<String> roles = oAuth2User.getRoles();
 
-        saveMember(email);
-        redirect(request, response, email, authorities);
+        redirect(request, response, email, roles);
     }
 
-    private void saveMember(String email) {
-        Member member = Member.builder()
-                .email(email)
-                .build();
-        memberService.createMember(member);
-    }
-
-    private void redirect(HttpServletRequest request, HttpServletResponse response, String username, List<String> authorities) throws IOException {
-        String accessToken = delegateAccessToken(username, authorities);
+    private void redirect(HttpServletRequest request, HttpServletResponse response, String username, List<String> roles) throws IOException {
+        String accessToken = delegateAccessToken(username, roles);
         String refreshToken = delegateRefreshToken(username);
 
         String uri = createURI(accessToken, refreshToken).toString();
+        // 말 그대로 소셜 로그인 성공 시 매개변수의 uri로 리다이렉트 시키는 메서드
         getRedirectStrategy().sendRedirect(request, response, uri);
     }
 
-    private String delegateAccessToken(String username, List<String> authorities) {
+    private String delegateAccessToken(String username, List<String> roles) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("username", username);
-        claims.put("roles", authorities);
+        claims.put("roles", roles);
 
         String subject = username;
         Date expiration = jwtTokenizer.getTokenExpiration(jwtTokenizer.getAccessTokenExpirationMinutes());
@@ -87,7 +79,7 @@ public class OAuth2MemberAuthenticationSuccessHandler extends SimpleUrlAuthentic
                 .scheme("http")
                 .host("localhost")
 //                .port(80)
-                .path("/receive-token.html")
+                .path("/") // todo 이 부분의 경로가 소셜 로그인 성공 시 리다이렉트되는 페이지다!! 요구사항에 맞게 수정하기!
                 .queryParams(queryParams)
                 .build()
                 .toUri();

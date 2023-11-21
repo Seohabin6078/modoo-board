@@ -25,10 +25,10 @@ public class JwtMemberServiceTest {
     @Test
     void 중복회원_가입방지_테스트() {
         //given
-        given(memberRepository.findByEmail(Mockito.anyString())).willReturn(Optional.of(new Member()));
+        given(memberRepository.findByEmail(Mockito.anyString())).willReturn(Optional.of(Member.builder().build()));
 
         //when //then
-        assertThrows(RuntimeException.class, () -> jwtMemberService.createMember(new Member()));
+        assertThrows(RuntimeException.class, () -> jwtMemberService.createMember(Member.builder().build()));
     }
 
     @Test
