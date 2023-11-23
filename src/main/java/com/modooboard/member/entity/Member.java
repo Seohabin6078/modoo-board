@@ -9,8 +9,6 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
-@AllArgsConstructor // Builder 패턴을 사용하기 위해서는 파라미터가 있는 생성자가 필요하다
 @Entity
 public class Member extends Auditable {
     @Id
@@ -41,13 +39,21 @@ public class Member extends Auditable {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "member_role", joinColumns = @JoinColumn(name = "member_id", referencedColumnName = "memberId"))
-    private List<String> roles = new ArrayList<>();
+    private List<String> roles = new ArrayList<>(); // todo 여기에서 생성하는 리스트 없어도 될 것 같음
 
-    public void createRoles(List<String> roles) {
+    @Builder
+    public Member(Long memberId, String email, String password, String displayName, String profileImage, SocialType socialType, String socialId, List<String> roles) {
+        this.memberId = memberId;
+        this.email = email;
+        this.password = password;
+        this.displayName = displayName;
+        this.profileImage = profileImage;
+        this.socialType = socialType;
+        this.socialId = socialId;
         this.roles = roles;
     }
 
-    public void changeRoles(List<String> roles) {
+    public void createRoles(List<String> roles) {
         this.roles = roles;
     }
 
