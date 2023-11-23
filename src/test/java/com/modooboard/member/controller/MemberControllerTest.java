@@ -12,10 +12,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import static org.mockito.BDDMockito.given;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -23,7 +26,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(MemberController.class)
 // 아래 방법 이외에 Application 파일에 있는 @EnableJpaAuditing 애너테이션을 따로 @Configuration 클래스에 두는 방법도 있다.
 @MockBean(JpaMetamodelMappingContext.class) // @WebMvcTest에는 Jpa 생성과 관련된 기능이 전혀 없기 때문에 JPA Auditing 기능을 사용할 때 필요하다
-public class MemberControllerTest {
+@WithMockUser
+public class MemberControllerTest { // 결국 컨트롤러 테스트가 목적이기 때문에 Security 부분은 WithMockUser와 .with(csrf())로 테스트만 돌아가게 하자!
     @Autowired
     private MockMvc mockMvc;
 
@@ -53,13 +57,14 @@ public class MemberControllerTest {
                         .displayName("홍길동")
                         .build();
 
-        given(mapper.memberPostDtoToMember(Mockito.any(MemberDto.Post.class))).willReturn(new Member());
-        given(jwtMemberService.createMember(Mockito.any(Member.class))).willReturn(new Member());
+        given(mapper.memberPostDtoToMember(Mockito.any(MemberDto.Post.class))).willReturn(Member.builder().build());
+        given(jwtMemberService.createMember(Mockito.any(Member.class))).willReturn(Member.builder().build());
         given(mapper.memberToMemberResponseDto(Mockito.any(Member.class))).willReturn(response);
 
         //when
         ResultActions actions = mockMvc.perform(
                 post("/members")
+                        .with(csrf())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
@@ -89,13 +94,14 @@ public class MemberControllerTest {
                         .displayName("홍길동")
                         .build();
 
-        given(mapper.memberPatchDtoToMember(Mockito.any(MemberDto.Patch.class))).willReturn(new Member());
-        given(jwtMemberService.updateMember(Mockito.any(Member.class))).willReturn(new Member());
+        given(mapper.memberPatchDtoToMember(Mockito.any(MemberDto.Patch.class))).willReturn(Member.builder().build());
+        given(jwtMemberService.updateMember(Mockito.any(Member.class))).willReturn(Member.builder().build());
         given(mapper.memberToMemberResponseDto(Mockito.any(Member.class))).willReturn(response);
 
         //when
         ResultActions actions = mockMvc.perform(
                 patch("/members/1")
+                        .with(csrf())
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
@@ -117,12 +123,12 @@ public class MemberControllerTest {
                         .displayName("홍길동")
                         .build();
 
-        given(jwtMemberService.findMember(Mockito.anyLong())).willReturn(new Member());
+        given(jwtMemberService.findMember(Mockito.anyLong())).willReturn(Member.builder().build());
         given(mapper.memberToMemberResponseDto(Mockito.any(Member.class))).willReturn(response);
 
         //when
         ResultActions actions = mockMvc.perform(
-                get("/members/1")
+                get("/members/1") // 조회의 경우 csrf 관련 코드가 필요없다.
                         .accept(MediaType.APPLICATION_JSON)
         );
 
@@ -144,12 +150,13 @@ public class MemberControllerTest {
                         .displayName("홍길동")
                         .build();
 
-        given(jwtMemberService.deleteMember(Mockito.anyLong())).willReturn(new Member());
+        given(jwtMemberService.deleteMember(Mockito.anyLong())).willReturn(Member.builder().build());
         given(mapper.memberToMemberResponseDto(Mockito.any(Member.class))).willReturn(response);
 
         //when
         ResultActions actions = mockMvc.perform(
                 delete("/members/1")
+                        .with(csrf())
                         .accept(MediaType.APPLICATION_JSON)
         );
 

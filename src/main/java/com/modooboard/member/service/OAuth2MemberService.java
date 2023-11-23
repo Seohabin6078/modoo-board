@@ -14,9 +14,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 //@Service
 public class OAuth2MemberService implements MemberService {
-    //todo OAuth2를 이용하는 경우 서비스 계층뿐만 아니라 컨트롤러 계층부터 모든 계층에서 어떻게 회원 데이터를 다룰지에 따라 로직이 변하기 때문에 추후에 정하고 코드 작성하기!
-    //todo 이거 OAuth2로 테스트할려면 controller, dto, mapper, db제약조건 등 다 세팅해야 에러가 뜨지 않음
-    //todo 지금은 그냥 jwt로 끼워놓고 다음에 이 부분 추가 기능 구현하기!
     private final MemberRepository memberRepository;
 
     public Member createMember(Member member) {

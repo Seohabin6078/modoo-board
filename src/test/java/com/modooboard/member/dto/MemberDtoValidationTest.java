@@ -69,8 +69,6 @@ public class MemberDtoValidationTest {
         //then
         assertThat(violations1.iterator().next().getMessage()).isEqualTo(expectMessage);
         assertThat(violations2.iterator().next().getMessage()).isEqualTo(expectMessage);
-        // 왜 여기는 NotBlank만 걸리고 @Email에는 안걸리는지 모르겠다.
-        // 아마 순서때문인 것 같은데 todo 순서바꿔서 돌려보기!!
         assertThat(violations3.iterator().next().getMessage()).isEqualTo("이메일은 공백일 수 없습니다.");
     }
 
