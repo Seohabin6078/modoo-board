@@ -15,12 +15,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
-public class JwtMemberServiceTest {
+public class MemberServiceTest {
     @Mock
     private MemberRepository memberRepository;
 
     @InjectMocks
-    private JwtMemberService jwtMemberService;
+    private MemberService memberService;
 
     @Test
     void 중복회원_가입방지_테스트() {
@@ -28,7 +28,7 @@ public class JwtMemberServiceTest {
         given(memberRepository.findByEmail(Mockito.anyString())).willReturn(Optional.of(Member.builder().build()));
 
         //when //then
-        assertThrows(RuntimeException.class, () -> jwtMemberService.createMember(Member.builder().build()));
+        assertThrows(RuntimeException.class, () -> memberService.createMember(Member.builder().build()));
     }
 
     @Test
@@ -43,6 +43,6 @@ public class JwtMemberServiceTest {
         given(memberRepository.findById(Mockito.anyLong())).willReturn(Optional.of(member));
 
         //when //then
-        assertThrows(RuntimeException.class, () -> jwtMemberService.findMember(1L));
+        assertThrows(RuntimeException.class, () -> memberService.findMember(1L));
     }
 }

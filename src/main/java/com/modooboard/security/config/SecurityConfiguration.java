@@ -1,6 +1,5 @@
 package com.modooboard.security.config;
 
-import com.modooboard.member.service.MemberService;
 import com.modooboard.security.filter.JwtAuthenticationFilter;
 import com.modooboard.security.filter.JwtVerificationFilter;
 import com.modooboard.security.handler.MemberAccessDeniedHandler;

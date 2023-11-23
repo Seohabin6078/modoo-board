@@ -1,13 +1,9 @@
 package com.modooboard.security.oauth2.handler;
 
-import com.modooboard.member.entity.Member;
-import com.modooboard.member.service.MemberService;
 import com.modooboard.security.jwt.JwtTokenizer;
 import com.modooboard.security.oauth2.oauth2user.CustomOAuth2User;
-import com.modooboard.security.utils.CustomAuthorityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
