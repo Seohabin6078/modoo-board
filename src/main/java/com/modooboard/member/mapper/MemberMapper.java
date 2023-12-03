@@ -39,7 +39,11 @@ public class MemberMapper {
                 .memberId(member.getMemberId())
                 .email(member.getEmail())
                 .displayName(member.getDisplayName())
+                .profileImage(member.getProfileImage())
                 .memberStatus(member.getMemberStatus().getStatus())
+                .socialType(member.getSocialType())
+                .socialId(member.getSocialId())
+                .roles(member.getRoles())
                 .createdAt(member.getCreatedAt())
                 .modifiedAt(member.getModifiedAt())
                 .build();

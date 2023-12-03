@@ -1,5 +1,6 @@
 package com.modooboard.member.dto;
 
+import com.modooboard.member.entity.Member;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -7,6 +8,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class MemberDto {
     @Builder
@@ -51,7 +53,11 @@ public class MemberDto {
         private Long memberId;
         private String email;
         private String displayName;
+        private String profileImage;
         private String memberStatus;
+        private Member.SocialType socialType;
+        private String socialId;
+        private List<String> roles;
         private LocalDateTime createdAt;
         private LocalDateTime modifiedAt;
     }
