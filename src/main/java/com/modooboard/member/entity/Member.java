@@ -1,6 +1,7 @@
 package com.modooboard.member.entity;
 
 import com.modooboard.audit.Auditable;
+import com.modooboard.post.entity.Post;
 import lombok.*;
 
 import javax.persistence.*;
@@ -13,6 +14,7 @@ import java.util.List;
 public class Member extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "member_id")
     private Long memberId;
 
     @Column(nullable = false, length = 100)
@@ -21,28 +23,32 @@ public class Member extends Auditable {
     @Column(nullable = false, length = 100)
     private String password;
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "display_name", nullable = false, length = 100)
     private String displayName;
 
-    @Column
+    @Column(name = "profile_image", length = 100)
     private String profileImage;
 
     @Enumerated(value = EnumType.STRING)
-    @Column(nullable = false, length = 100)
+    @Column(name = "member_status", nullable = false, length = 100)
     private MemberStatus memberStatus = MemberStatus.MEMBER_ACTIVE;
 
     @Enumerated(value = EnumType.STRING)
+    @Column(name = "social_type", length = 100)
     private SocialType socialType;
 
-    @Column
+    @Column(name = "social_id", length = 100)
     private String socialId; // 로그인한 소셜 타입의 식별자 값 (일반 로그인인 경우 null)
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "member_role", joinColumns = @JoinColumn(name = "member_id", referencedColumnName = "memberId"))
-    private List<String> roles = new ArrayList<>(); // todo 여기에서 생성하는 리스트 없어도 될 것 같음
+    @ElementCollection(fetch = FetchType.EAGER) // todo 이 부분 일대다 단방향 매핑과 영속성 전이와 고아객체 제거 활성화로 바꾸는거 고려해보기!
+    @CollectionTable(name = "member_roles", joinColumns = @JoinColumn(name = "member_id", referencedColumnName = "member_id"))
+    private List<String> roles;
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE) // 회원을 삭제하면 관련된 게시글들도 삭제된다.
+    private List<Post> postList = new ArrayList<>();
 
     @Builder
-    public Member(Long memberId, String email, String password, String displayName, String profileImage, SocialType socialType, String socialId, List<String> roles) {
+    public Member(Long memberId, String email, String password, String displayName, String profileImage, SocialType socialType, String socialId, List<String> roles, List<Post> postList) {
         this.memberId = memberId;
         this.email = email;
         this.password = password;
@@ -51,6 +57,7 @@ public class Member extends Auditable {
         this.socialType = socialType;
         this.socialId = socialId;
         this.roles = roles;
+        this.postList = postList;
     }
 
     public void createRoles(List<String> roles) {
